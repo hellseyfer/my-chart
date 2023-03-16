@@ -8,7 +8,7 @@ image:
   repository: juank8sclusteracr.azurecr.io
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -84,18 +84,76 @@ ingresses:
       portName: http
   tls: []
 
+deployments:
+- name: "hello-world-one"
+  replicas: 1
+  containers:
+  - name: my-container
+    image: juank8sclusteracr.azurecr.io/node-image:latest
+    ports:
+    - containerPort: 3000
+    env:
+    - name: TITLE
+      value: 'AKS Ingress Demo 01'
+    resources:
+      requests:
+        cpu: 250m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+statefulSets:
+- name: "hello-world-two"
+  serviceName: mychart2-svc
+  replicas: 2
+  containers:
+  - name: my-container
+    image: juank8sclusteracr.azurecr.io/node-image:latest
+    ports:
+    - containerPort: 3000
+    env:
+    - name: TITLE
+      value: 'AKS Ingress Demo 01'
+    resources:
+      requests:
+        cpu: 250m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  volumeData:
+    name: data
+    mounthPath: /usr/share/data
+    accessModes: ['ReadWriteOnce']
+    storage: 2Gi
+
+services:
+- name: mychart-svc
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  selector:
+    app: mychart
+- name: mychart2-svc
+  isHeadless: true
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+  selector:
+    app: mychart2
 
 #resources: {}
-# We usually recommend not to specify default resources and to leave this as a conscious
-# choice for the user. This also increases chances charts run on environments with little
-# resources, such as Minikube. If you do want to specify resources, uncomment the following
-# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-# limits:
-#   cpu: 100m
-#   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
+resources:
+  requests:
+    cpu: 250m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
 
 autoscaling:
   enabled: false

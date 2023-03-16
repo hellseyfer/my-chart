@@ -1,0 +1,31 @@
+# save the original value of .
+{{- $top := . -}}
+{{- $fullName := include "test-chart.fullname" . -}}
+# iterate over the ingress configurations
+{{- range $deployment := .Values.deployments }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName}}-{{ $deployment.name }}
+spec:
+  {{- if not $top.Values.autoscaling.enabled }}
+  replicas: {{ $deployment.replicas }}
+  {{- end}}
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.name }}
+    spec:
+      {{- with $deployment.containers }}
+      containers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}        
+      {{- with $top.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

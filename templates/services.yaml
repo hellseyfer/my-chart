@@ -1,0 +1,24 @@
+# save the original value of .
+{{- $top := . -}}
+# iterate over the ingress configurations
+{{- range $service := .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $service.name }}
+spec:
+  {{- with $service.ports }}
+  ports:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if $service.isHeadless }}
+  clusterIP: None
+  {{- else }}
+  type: {{ $service.type }}
+  {{- end }}
+  {{- with $service.selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

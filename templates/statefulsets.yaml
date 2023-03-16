@@ -1,0 +1,40 @@
+# save the original value of .
+{{- $top := . -}}
+# iterate over the ingress configurations
+{{- $fullName := include "test-chart.fullname" . -}}
+{{- range $stateful := .Values.statefulSets }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $fullName }}-{{ $stateful.name }}
+spec:
+  {{- if not $top.Values.autoscaling.enabled }}
+  replicas: {{ $stateful.replicas }}
+  {{- end}}
+  serviceName: {{ $stateful.serviceName }}
+  selector:
+    matchLabels:
+      app: {{ $stateful.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $stateful.name }}
+    spec:
+      {{- with $stateful.containers }}
+      containers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}      
+      {{- with $top.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ $stateful.volumeData.name }}
+      spec:
+        accessModes: {{ $stateful.volumeData.accessModes }}
+        resources:
+          requests:
+            storage: {{ $stateful.volumeData.storage }}
+{{- end }}
