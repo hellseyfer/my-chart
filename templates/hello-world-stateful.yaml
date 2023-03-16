@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mychart2
+spec:
+  selector:
+    matchLabels:
+      app: mychart2
+  replicas: 3
+  serviceName: mychart2-svc
+  template:
+    metadata:
+      labels:
+        app: mychart2
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: image
+          image: juank8sclusteracr.azurecr.io/node-image:latest
+          ports:
+            - containerPort: 3000
+              name: web
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/data
+          env:
+            - name: TITLE
+              value: 'AKS Ingress Demo 02'
+          resources:
+            requests:
+              cpu: 250m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      nodeSelector:
+        nodePoolType: user
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ['ReadWriteOnce']
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mychart2-svc
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+  clusterIP: None # A Headless Service, is used to control the network domain of the StatefulSet
+  selector:
+    app: mychart2
