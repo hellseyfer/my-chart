@@ -20,10 +20,24 @@ spec:
       labels:
         app: {{ $deployment.name }}
     spec:
-      {{- with $deployment.containers }}
       containers:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}        
+        - name: {{ $top.Chart.Name }}
+          image: {{ $top.Values.image.repository }}:{{ $top.Values.image.tag }}
+          imagePullPolicy: {{ $top.Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $top.Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml $top.Values.resources | nindent 12 }}     
       {{- with $top.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

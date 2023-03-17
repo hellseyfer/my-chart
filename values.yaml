@@ -36,9 +36,9 @@ serviceAccount:
 # runAsNonRoot: true
 # runAsUser: 1000
 
-#service:
-#  type: ClusterIP
-#  port: 80
+service:
+  type: ClusterIP
+  port: 80
 
 #name: hello-world-ingress
 
@@ -87,46 +87,6 @@ ingresses:
 deployments:
 - name: "hello-world-one"
   replicas: 1
-  containers:
-  - name: my-container
-    image: juank8sclusteracr.azurecr.io/node-image:latest
-    ports:
-    - containerPort: 3000
-    env:
-    - name: TITLE
-      value: 'AKS Ingress Demo 01'
-    resources:
-      requests:
-        cpu: 250m
-        memory: 64Mi
-      limits:
-        cpu: 500m
-        memory: 256Mi
-
-statefulSets:
-- name: "hello-world-two"
-  serviceName: mychart2-svc
-  replicas: 2
-  containers:
-  - name: my-container
-    image: juank8sclusteracr.azurecr.io/node-image:latest
-    ports:
-    - containerPort: 3000
-    env:
-    - name: TITLE
-      value: 'AKS Ingress Demo 01'
-    resources:
-      requests:
-        cpu: 250m
-        memory: 64Mi
-      limits:
-        cpu: 500m
-        memory: 256Mi
-  volumeData:
-    name: data
-    mounthPath: /usr/share/data
-    accessModes: ['ReadWriteOnce']
-    storage: 2Gi
 
 services:
 - name: mychart-svc
