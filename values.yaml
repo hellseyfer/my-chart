@@ -7,7 +7,7 @@ image:
   repository: juank8sclusteracr.azurecr.io
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "0.0.2"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
