@@ -153,5 +153,4 @@ autoscaling:
 nodeSelector:
   nodePoolType: user
 tolerations: []
-tag: 0.0.2
 #affinity: {}
