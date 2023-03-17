@@ -7,7 +7,7 @@ image:
   repository: juank8sclusteracr.azurecr.io/node-image
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.0"
+  tag: "0.0.4"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -36,66 +36,65 @@ service:
   containerPort: 3000
 #name: hello-world-ingress
 ingresses:
-- name: mychart-ingress
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-  # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
-  hosts:
-  - host: "example.com"
-    paths:
-    - path: /hello-world-one(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-    - path: /hello-world-two(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart2-svc
-      portName: http
-    - path: /(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-  tls: []
-- name: mychart2-ingress
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /static/$2
-  hosts:
-  - host: "example.com"
-    paths:
-    - path: /static(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-  tls: []
+  - name: mychart-ingress
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: "example.com"
+        paths:
+          - path: /hello-world-one(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+          - path: /hello-world-two(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart2-svc
+            portName: http
+          - path: /(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+    tls: []
+  - name: mychart2-ingress
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/rewrite-target: /static/$2
+    hosts:
+      - host: "example.com"
+        paths:
+          - path: /static(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+    tls: []
 deployments:
-- name: "hello-world-one"
-  replicas: 1
-
+  - name: "hello-world-one"
+    replicas: 1
 services:
-- name: mychart-svc
-  type: ClusterIP
-  ports:
-  - name: http
-    port: 80
-    targetPort: 3000
-  selector:
-    app: hello-world-one
-- name: mychart2-svc
-  isHeadless: true
-  ports:
-  - name: http
-    port: 80
-    targetPort: 3000
-  selector:
-    app: mychart2
+  - name: mychart-svc
+    type: ClusterIP
+    ports:
+      - name: http
+        port: 80
+        targetPort: 3000
+    selector:
+      app: hello-world-one
+  - name: mychart2-svc
+    isHeadless: true
+    ports:
+      - name: http
+        port: 80
+        targetPort: 3000
+    selector:
+      app: mychart2
 #resources: {}
 resources:
   requests:
