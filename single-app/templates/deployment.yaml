@@ -26,7 +26,7 @@ spec:
           imagePullPolicy: {{ $top.Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ $top.Values.service.port }}
+              containerPort: {{ $top.Values.service.containerPort }}
               protocol: TCP
           livenessProbe:
             httpGet:
