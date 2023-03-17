@@ -127,7 +127,7 @@ services:
     port: 80
     targetPort: 3000
   selector:
-    app: mychart
+    app: hello-world-one
 - name: mychart2-svc
   isHeadless: true
   ports:
