@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: juank8sclusteracr.azurecr.io
+  repository: juank8sclusteracr.azurecr.io/node-image
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 1.17
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
