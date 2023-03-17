@@ -3,17 +3,14 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-
 image:
   repository: juank8sclusteracr.azurecr.io/node-image
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
-
+  tag: "0.0.4"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -22,7 +19,6 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
 #podAnnotations: {}
 
 #podSecurityContext: {}
@@ -41,71 +37,111 @@ service:
   port: 80
 
 #name: hello-world-ingress
-
 ingresses:
-- name: mychart-ingress
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-  # kubernetes.io/ingress.class: nginx
-  # kubernetes.io/tls-acme: "true"
-  hosts:
-  - host: "example.com"
-    paths:
-    - path: /hello-world-one(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-    - path: /hello-world-two(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart2-svc
-      portName: http
-    - path: /(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-  tls: []
-
-- name: mychart2-ingress
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /static/$2
-  hosts:
-  - host: "example.com"
-    paths:
-    - path: /static(/|$)(.*)
-      pathType: Prefix
-      serviceName: mychart-svc
-      portName: http
-  tls: []
-
+  - name: mychart-ingress
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/use-regex: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: "example.com"
+        paths:
+          - path: /hello-world-one(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+          - path: /hello-world-two(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart2-svc
+            portName: http
+          - path: /(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+    tls: []
+  - name: mychart2-ingress
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/rewrite-target: /static/$2
+    hosts:
+      - host: "example.com"
+        paths:
+          - path: /static(/|$)(.*)
+            pathType: Prefix
+            serviceName: mychart-svc
+            portName: http
+    tls: []
 deployments:
+<<<<<<< HEAD:single-app/values.yaml
 - name: "hello-world-one"
   replicas: 1
 
+=======
+  - name: "hello-world-one"
+    replicas: 1
+    containers:
+      - name: my-container
+        image: juank8sclusteracr.azurecr.io/node-image:latest
+        ports:
+          - containerPort: 3000
+        env:
+          - name: TITLE
+            value: 'AKS Ingress Demo 01'
+        resources:
+          requests:
+            cpu: 250m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+statefulSets:
+  - name: "hello-world-two"
+    serviceName: mychart2-svc
+    replicas: 2
+    containers:
+      - name: my-container
+        image: juank8sclusteracr.azurecr.io/node-image:latest
+        ports:
+          - containerPort: 3000
+        env:
+          - name: TITLE
+            value: 'AKS Ingress Demo 01'
+        resources:
+          requests:
+            cpu: 250m
+            memory: 64Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+    volumeData:
+      name: data
+      mounthPath: /usr/share/data
+      accessModes: ['ReadWriteOnce']
+      storage: 2Gi
+>>>>>>> 29806fea710f23a3dd414b898568a3fc77847e0c:values.yaml
 services:
-- name: mychart-svc
-  type: ClusterIP
-  ports:
-  - name: http
-    port: 80
-    targetPort: 3000
-  selector:
-    app: mychart
-- name: mychart2-svc
-  isHeadless: true
-  ports:
-  - name: http
-    port: 80
-    targetPort: 3000
-  selector:
-    app: mychart2
-
+  - name: mychart-svc
+    type: ClusterIP
+    ports:
+      - name: http
+        port: 80
+        targetPort: 3000
+    selector:
+      app: mychart
+  - name: mychart2-svc
+    isHeadless: true
+    ports:
+      - name: http
+        port: 80
+        targetPort: 3000
+    selector:
+      app: mychart2
 #resources: {}
 resources:
   requests:
@@ -114,17 +150,13 @@ resources:
   limits:
     cpu: 500m
     memory: 256Mi
-
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
 nodeSelector:
   nodePoolType: user
-
 tolerations: []
-
 #affinity: {}
