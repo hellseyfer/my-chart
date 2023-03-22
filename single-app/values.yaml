@@ -4,10 +4,10 @@
 
 replicaCount: 1
 image:
-  repository: juank8sclusteracr.azurecr.io/node-image
+  repository: juank8stestacr.azurecr.io/examplenode-dev
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.0"
+  tag: "0.0.4"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -20,6 +20,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
   #podAnnotations: {}
+
 #podSecurityContext: {}
 # fsGroup: 2000
 
@@ -30,10 +31,11 @@ serviceAccount:
 # readOnlyRootFilesystem: true
 # runAsNonRoot: true
 # runAsUser: 1000
+
 service:
   type: ClusterIP
   port: 80
-  containerPort: 3000
+
 #name: hello-world-ingress
 ingresses:
 - name: mychart-ingress
@@ -78,7 +80,45 @@ ingresses:
 deployments:
 - name: "hello-world-one"
   replicas: 1
-
+  containers:
+  - name: my-container
+    image: juank8sclusteracr.azurecr.io/node-image:latest
+    ports:
+    - containerPort: 3000
+    env:
+    - name: TITLE
+      value: 'AKS Ingress Demo 01'
+    resources:
+      requests:
+        cpu: 250m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+statefulSets:
+- name: "hello-world-two"
+  serviceName: mychart2-svc
+  replicas: 2
+  containers:
+  - name: my-container
+    image: juank8sclusteracr.azurecr.io/node-image:latest
+    ports:
+    - containerPort: 3000
+    env:
+    - name: TITLE
+      value: 'AKS Ingress Demo 01'
+    resources:
+      requests:
+        cpu: 250m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+  volumeData:
+    name: data
+    mounthPath: /usr/share/data
+    accessModes: ['ReadWriteOnce']
+    storage: 2Gi
 services:
 - name: mychart-svc
   type: ClusterIP
